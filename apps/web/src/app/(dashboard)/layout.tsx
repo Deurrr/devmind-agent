@@ -18,7 +18,5 @@ export default function DashboardLayout({
     }
   }, [isAuthenticated, router])
 
-  if (!isAuthenticated()) return null
-
   return <div className="h-screen flex flex-col">{children}</div>
 }

@@ -12,7 +12,16 @@
       "Bash(npx shadcn@latest init --yes --base-color slate)",
       "Bash(npx shadcn@latest init --yes)",
       "Bash(npx shadcn@latest init -d)",
-      "Bash(npx shadcn@latest add input label card textarea badge separator scroll-area --yes)"
+      "Bash(npx shadcn@latest add input label card textarea badge separator scroll-area --yes)",
+      "Bash(docker-compose up:*)",
+      "Bash(cd:*)",
+      "Bash(npm run:*)",
+      "Bash(netstat -ano)",
+      "Bash(findstr \":5432\")",
+      "Bash(sed:*)",
+      "Bash(docker-compose ps:*)",
+      "Bash(cat D:/projectIA/docs/phases/*.md)",
+      "Bash(find /d/projectIA/apps -name *.log -o -name .env*)"
     ]
   }
 }

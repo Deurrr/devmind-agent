@@ -1,54 +1,54 @@
-import Anthropic from '@anthropic-ai/sdk'
 import type { AgentEvent, GeneratedFile } from '../types/index.js'
 
-const client = new Anthropic()
+const MOCK_RESPONSE = `Sure! Here's a simple white square in HTML/CSS:
 
-const CODER_SYSTEM_PROMPT = `You are an expert software engineer and code generator. Your job is to write clean, production-quality code based on the user's request.
+// FILE: index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>White Square</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="square"></div>
+</body>
+</html>
 
-Guidelines:
-- Write complete, working code — no placeholders or TODOs unless absolutely necessary
-- Use TypeScript when possible
-- Follow best practices for the chosen language/framework
-- Structure code in multiple files when appropriate
-- Include brief inline comments only where logic is non-obvious
-- When generating multiple files, clearly separate them with a header comment like: // FILE: path/to/filename.ts
+// FILE: style.css
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  background: #111;
+}
 
-Always respond with actual code, not just explanations. Be direct and thorough.`
+.square {
+  width: 200px;
+  height: 200px;
+  background: #ffffff;
+}
+`
 
 export async function* runCoderAgent(
   userMessage: string,
-  conversationHistory: Array<{ role: 'user' | 'assistant'; content: string }>
+  _conversationHistory: Array<{ role: 'user' | 'assistant'; content: string }>
 ): AsyncGenerator<AgentEvent> {
   yield { type: 'agent_start', agent: 'coder' }
 
-  const messages: Anthropic.MessageParam[] = [
-    ...conversationHistory.map((m) => ({
-      role: m.role as 'user' | 'assistant',
-      content: m.content,
-    })),
-    { role: 'user', content: userMessage },
-  ]
-
-  const stream = await client.messages.stream({
-    model: 'claude-sonnet-4-6',
-    max_tokens: 8096,
-    system: CODER_SYSTEM_PROMPT,
-    messages,
-  })
-
+  // TODO: replace with real AI call (Anthropic / Groq) when API key is available
+  const words = MOCK_RESPONSE.split(' ')
   let fullContent = ''
 
-  for await (const event of stream) {
-    if (
-      event.type === 'content_block_delta' &&
-      event.delta.type === 'text_delta'
-    ) {
-      fullContent += event.delta.text
-      yield { type: 'token', agent: 'coder', content: event.delta.text }
-    }
+  for (const word of words) {
+    const token = word + ' '
+    fullContent += token
+    yield { type: 'token', agent: 'coder', content: token }
+    await new Promise((r) => setTimeout(r, 30))
   }
 
-  // Parse generated files from the response
   const files = parseGeneratedFiles(fullContent)
   if (files.length > 0) {
     yield { type: 'tool_result', agent: 'coder', toolResult: files }

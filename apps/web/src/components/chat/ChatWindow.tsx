@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { MessageBubble } from './MessageBubble'
 import { StreamingBubble } from './StreamingBubble'
 import { AgentStatusBar } from './AgentStatusBar'
@@ -19,6 +18,7 @@ interface Props {
 
 export function ChatWindow({ projectId, projectTitle }: Props) {
   const bottomRef = useRef<HTMLDivElement>(null)
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
   const {
     messages,
     sessionId,
@@ -36,7 +36,8 @@ export function ChatWindow({ projectId, projectTitle }: Props) {
   const { isAuthenticated } = useAuthStore()
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    const el = scrollContainerRef.current
+    if (el) el.scrollTop = el.scrollHeight
   }, [messages, streamingContent])
 
   const handleSend = async (message: string) => {
@@ -96,7 +97,7 @@ export function ChatWindow({ projectId, projectTitle }: Props) {
       </div>
 
       {/* Messages */}
-      <ScrollArea className="flex-1 px-6 py-4">
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-6 py-4">
         <div className="space-y-6 max-w-4xl mx-auto">
           {messages.length === 0 && (
             <div className="flex flex-col items-center justify-center h-64 text-center">
@@ -121,9 +122,8 @@ export function ChatWindow({ projectId, projectTitle }: Props) {
             <StreamingBubble content={streamingContent} agentType={activeAgent} />
           )}
 
-          <div ref={bottomRef} />
         </div>
-      </ScrollArea>
+      </div>
 
       {/* Status bar */}
       <AgentStatusBar activeAgent={activeAgent} isStreaming={isStreaming} />

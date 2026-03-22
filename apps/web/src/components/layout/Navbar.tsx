@@ -3,8 +3,10 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import { useAuthStore } from '@/store/authStore'
 import { LogOut, LayoutDashboard } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 export function Navbar() {
   const router = useRouter()
@@ -25,17 +27,13 @@ export function Navbar() {
       </Link>
 
       <nav className="flex items-center gap-1">
-        <Button
-          variant="ghost"
-          size="sm"
-          asChild
-          className="text-zinc-400 hover:text-zinc-100 h-8"
+        <Link
+          href="/dashboard"
+          className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }), 'text-zinc-400 hover:text-zinc-100 h-8')}
         >
-          <Link href="/dashboard">
-            <LayoutDashboard className="w-4 h-4 mr-1.5" />
-            Dashboard
-          </Link>
-        </Button>
+          <LayoutDashboard className="w-4 h-4 mr-1.5" />
+          Dashboard
+        </Link>
       </nav>
 
       <div className="ml-auto flex items-center gap-3">
