@@ -9,11 +9,15 @@ dist/
 build/
 out/
 
-# Environment variables
+# Environment variables — never commit real .env files
 .env
 .env.local
 .env.*.local
+apps/**/.env
+apps/**/.env.local
+apps/**/.env.*.local
 !.env.example
+!apps/**/.env.example
 
 # Logs
 *.log
