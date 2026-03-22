@@ -1,0 +1,27 @@
+// Shared types and utilities used across apps
+
+export type AgentType =
+  | 'planner'
+  | 'researcher'
+  | 'architect'
+  | 'coder'
+  | 'reviewer'
+  | 'tester'
+
+export interface AgentEvent {
+  type:
+    | 'agent_start'
+    | 'agent_thinking'
+    | 'token'
+    | 'agent_done'
+    | 'tool_call'
+    | 'tool_result'
+    | 'error'
+    | 'done'
+  agent?: AgentType
+  content?: string
+  tool?: string
+  toolInput?: Record<string, unknown>
+  toolResult?: unknown
+  error?: string
+}
