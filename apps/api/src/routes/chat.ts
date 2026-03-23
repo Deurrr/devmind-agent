@@ -1,8 +1,8 @@
 import type { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import { prisma } from '../lib/prisma.js'
-import { runCoderAgent } from '../agents/coder.js'
-import type { Message, AgentEvent } from '../types/index.js'
+import { runOrchestrator } from '../services/orchestrator.js'
+import type { Message, AgentEvent, AgentType } from '../types/index.js'
 
 const sendMessageSchema = z.object({
   message: z.string().min(1).max(4000),
@@ -43,7 +43,7 @@ export async function chatRoutes(fastify: FastifyInstance) {
         })
       }
 
-      const history = session.messages as Message[]
+      const history = session.messages as unknown as Message[]
 
       // Set SSE headers
       reply.raw.writeHead(200, {
@@ -58,28 +58,35 @@ export async function chatRoutes(fastify: FastifyInstance) {
         reply.raw.write(`data: ${JSON.stringify(event)}\n\n`)
       }
 
-      let fullAssistantResponse = ''
+      // Track each agent's output separately
       const agentLog: AgentEvent[] = []
+      const agentMessages: Message[] = []
+      let currentAgent: AgentType | null = null
+      let currentContent = ''
 
       try {
-        const conversationHistory = history.map((m) => ({
-          role: m.role,
-          content: m.content,
-        }))
-
-        for await (const event of runCoderAgent(
-          body.data.message,
-          conversationHistory
-        )) {
+        for await (const event of runOrchestrator(body.data.message, history)) {
           sendEvent(event)
           agentLog.push(event)
 
-          if (event.type === 'token' && event.content) {
-            fullAssistantResponse += event.content
+          if (event.type === 'agent_start' && event.agent) {
+            currentAgent = event.agent
+            currentContent = ''
+          } else if (event.type === 'token' && event.content) {
+            currentContent += event.content
+          } else if (event.type === 'agent_done' && event.agent && currentContent) {
+            agentMessages.push({
+              role: 'assistant',
+              content: currentContent,
+              agentType: currentAgent ?? undefined,
+              timestamp: new Date().toISOString(),
+            })
+            currentAgent = null
+            currentContent = ''
           }
         }
 
-        // Persist messages
+        // Persist all messages (user + one per agent)
         const updatedMessages: Message[] = [
           ...history,
           {
@@ -87,19 +94,14 @@ export async function chatRoutes(fastify: FastifyInstance) {
             content: body.data.message,
             timestamp: new Date().toISOString(),
           },
-          {
-            role: 'assistant',
-            content: fullAssistantResponse,
-            agentType: 'coder',
-            timestamp: new Date().toISOString(),
-          },
+          ...agentMessages,
         ]
 
         await prisma.session.update({
           where: { id: session.id },
           data: {
-            messages: updatedMessages,
-            agentLog: [...(session.agentLog as AgentEvent[]), ...agentLog],
+            messages: updatedMessages as unknown as Parameters<typeof prisma.session.update>[0]['data']['messages'],
+            agentLog: [...(session.agentLog as unknown as AgentEvent[]), ...agentLog] as unknown as Parameters<typeof prisma.session.update>[0]['data']['agentLog'],
           },
         })
 

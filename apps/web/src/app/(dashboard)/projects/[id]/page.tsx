@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import dynamic from 'next/dynamic'
 import { Navbar } from '@/components/layout/Navbar'
 import { ChatWindow } from '@/components/chat/ChatWindow'
 import { useChatStore } from '@/store/chatStore'
@@ -10,6 +11,12 @@ import type { Project } from '@/types'
 import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import toast from 'react-hot-toast'
+
+// Dynamic import to avoid SSR issues with ReactFlow + Mermaid
+const AgentGraph = dynamic(
+  () => import('@/components/chat/AgentGraph').then((m) => m.AgentGraph),
+  { ssr: false }
+)
 
 export default function ProjectPage() {
   const params = useParams()
@@ -46,7 +53,9 @@ export default function ProjectPage() {
   return (
     <div className="flex flex-col h-full">
       <Navbar />
-      <div className="flex items-center gap-2 px-6 py-2 border-b border-white/5 bg-zinc-900/30">
+
+      {/* Breadcrumb */}
+      <div className="flex items-center gap-2 px-6 py-2 border-b border-white/5 bg-zinc-900/30 shrink-0">
         <Button
           variant="ghost"
           size="sm"
@@ -59,8 +68,21 @@ export default function ProjectPage() {
         <span className="text-zinc-700 text-xs">/</span>
         <span className="text-xs text-zinc-400">{project.title}</span>
       </div>
-      <div className="flex-1 overflow-hidden">
-        <ChatWindow projectId={project.id} projectTitle={project.title} />
+
+      {/* Main split layout */}
+      <div className="flex-1 overflow-hidden flex flex-col">
+        {/* Agent Graph — top panel */}
+        <div className="h-52 shrink-0 border-b border-white/5 relative">
+          <div className="absolute top-2 left-3 z-10 text-[10px] text-zinc-600 font-mono uppercase tracking-widest select-none">
+            Agent Pipeline
+          </div>
+          <AgentGraph />
+        </div>
+
+        {/* Chat — bottom panel */}
+        <div className="flex-1 overflow-hidden">
+          <ChatWindow projectId={project.id} projectTitle={project.title} />
+        </div>
       </div>
     </div>
   )

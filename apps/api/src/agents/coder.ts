@@ -1,52 +1,59 @@
+import Anthropic from '@anthropic-ai/sdk'
+import { anthropic, MODEL } from '../lib/anthropic.js'
 import type { AgentEvent, GeneratedFile } from '../types/index.js'
 
-const MOCK_RESPONSE = `Sure! Here's a simple white square in HTML/CSS:
+const SYSTEM_PROMPT = `You are the Coder agent in a multi-agent AI development system.
+Your job is to write the actual implementation code based on the plan and architecture provided.
 
-// FILE: index.html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>White Square</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <div class="square"></div>
-</body>
-</html>
-
-// FILE: style.css
-body {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  margin: 0;
-  background: #111;
-}
-
-.square {
-  width: 200px;
-  height: 200px;
-  background: #ffffff;
-}
-`
+Rules:
+- Write complete, working code — no placeholders or TODOs
+- Use this format for each file:
+  // FILE: path/to/filename.ext
+  <file content here>
+- Separate multiple files clearly
+- Include all necessary imports
+- Write clean, idiomatic code for the chosen language/framework`
 
 export async function* runCoderAgent(
   userMessage: string,
-  _conversationHistory: Array<{ role: 'user' | 'assistant'; content: string }>
+  plannerOutput: string,
+  architectOutput: string,
+  history: Array<{ role: 'user' | 'assistant'; content: string }>
 ): AsyncGenerator<AgentEvent> {
   yield { type: 'agent_start', agent: 'coder' }
 
-  // TODO: replace with real AI call (Anthropic / Groq) when API key is available
-  const words = MOCK_RESPONSE.split(' ')
+  const userContent = `User request: ${userMessage}
+
+Planner's plan:
+${plannerOutput}
+
+Architect's design:
+${architectOutput}
+
+Now implement the code.`
+
+  const messages: Anthropic.MessageParam[] = [
+    ...history.map((m) => ({ role: m.role, content: m.content })),
+    { role: 'user', content: userContent },
+  ]
+
+  const stream = await anthropic.messages.stream({
+    model: MODEL,
+    max_tokens: 4096,
+    system: SYSTEM_PROMPT,
+    messages,
+  })
+
   let fullContent = ''
 
-  for (const word of words) {
-    const token = word + ' '
-    fullContent += token
-    yield { type: 'token', agent: 'coder', content: token }
-    await new Promise((r) => setTimeout(r, 30))
+  for await (const chunk of stream) {
+    if (
+      chunk.type === 'content_block_delta' &&
+      chunk.delta.type === 'text_delta'
+    ) {
+      fullContent += chunk.delta.text
+      yield { type: 'token', agent: 'coder', content: chunk.delta.text }
+    }
   }
 
   const files = parseGeneratedFiles(fullContent)

@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useRef } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import type { Message } from '@/types'
@@ -13,18 +14,56 @@ const AGENT_COLORS: Record<string, string> = {
   tester: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
 }
 
+function MermaidDiagram({ code }: { code: string }) {
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    import('mermaid').then(({ default: mermaid }) => {
+      if (cancelled || !ref.current) return
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: 'dark',
+        themeVariables: { background: '#09090b', primaryColor: '#8b5cf6' },
+      })
+      const id = `mermaid-${Math.random().toString(36).slice(2)}`
+      mermaid.render(id, code).then(({ svg }) => {
+        if (!cancelled && ref.current) {
+          ref.current.innerHTML = svg
+        }
+      }).catch(() => {
+        if (!cancelled && ref.current) {
+          ref.current.textContent = code
+        }
+      })
+    })
+    return () => { cancelled = true }
+  }, [code])
+
+  return (
+    <div
+      ref={ref}
+      className="my-3 p-4 rounded-lg bg-zinc-900/80 border border-white/10 overflow-x-auto flex justify-center"
+    />
+  )
+}
+
 function renderContent(content: string) {
-  // Split by code blocks
   const parts = content.split(/(```[\s\S]*?```)/g)
   return parts.map((part, i) => {
     if (part.startsWith('```')) {
-      const firstLine = part.slice(3).split('\n')[0]
-      const language = firstLine.trim() || 'plaintext'
-      const code = part.slice(3 + firstLine.length + 1, -3)
+      const firstNewline = part.indexOf('\n')
+      const language = firstNewline > 3 ? part.slice(3, firstNewline).trim() : 'plaintext'
+      const code = firstNewline > -1 ? part.slice(firstNewline + 1, -3) : ''
+
+      if (language === 'mermaid') {
+        return <MermaidDiagram key={i} code={code} />
+      }
+
       return (
         <div key={i} className="my-3 rounded-lg overflow-hidden border border-white/10">
           <div className="flex items-center justify-between px-4 py-1.5 bg-white/5 border-b border-white/10">
-            <span className="text-xs text-zinc-400 font-mono">{language}</span>
+            <span className="text-xs text-zinc-400 font-mono">{language || 'plaintext'}</span>
           </div>
           <pre className="p-4 overflow-x-auto bg-zinc-950">
             <code className="text-sm font-mono text-zinc-200">{code}</code>

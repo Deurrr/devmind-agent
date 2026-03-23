@@ -30,12 +30,15 @@ export type AgentType =
   | 'reviewer'
   | 'tester'
 
+export type AgentStatus = 'idle' | 'thinking' | 'done'
+
 export interface AgentEvent {
   type:
     | 'agent_start'
     | 'agent_thinking'
     | 'token'
     | 'agent_done'
+    | 'agent_handoff'
     | 'tool_call'
     | 'tool_result'
     | 'error'

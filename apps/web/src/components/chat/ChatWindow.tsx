@@ -29,6 +29,7 @@ export function ChatWindow({ projectId, projectTitle }: Props) {
     setSessionId,
     setStreaming,
     setActiveAgent,
+    setAgentStatus,
     appendStreamingContent,
     flushStreamingContent,
   } = useChatStore()
@@ -53,7 +54,6 @@ export function ChatWindow({ projectId, projectTitle }: Props) {
     })
 
     setStreaming(true)
-    setActiveAgent('coder')
 
     try {
       await api.chat.streamMessage(
@@ -63,10 +63,14 @@ export function ChatWindow({ projectId, projectTitle }: Props) {
         (event: AgentEvent) => {
           if (event.type === 'agent_start' && event.agent) {
             setActiveAgent(event.agent)
+            setAgentStatus(event.agent, 'thinking')
           } else if (event.type === 'token' && event.content) {
             appendStreamingContent(event.content)
           } else if (event.type === 'agent_done' && event.agent) {
             flushStreamingContent(event.agent)
+            setAgentStatus(event.agent, 'done')
+          } else if (event.type === 'agent_handoff' && event.agent) {
+            setActiveAgent(event.agent)
           } else if (event.type === 'error') {
             toast.error(event.error ?? 'An error occurred')
             setStreaming(false)
@@ -97,38 +101,19 @@ export function ChatWindow({ projectId, projectTitle }: Props) {
       </div>
 
       {/* Messages */}
-      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-6 py-4">
-        <div className="space-y-6 max-w-4xl mx-auto">
-          {messages.length === 0 && (
-            <div className="flex flex-col items-center justify-center h-64 text-center">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-2xl mb-4">
-                💻
-              </div>
-              <h3 className="text-lg font-semibold text-zinc-200 mb-2">
-                Ready to build
-              </h3>
-              <p className="text-sm text-zinc-500 max-w-sm">
-                Describe what you want to build and the Coder agent will generate
-                production-quality code for you.
-              </p>
-            </div>
-          )}
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+        {messages.map((msg, i) => (
+          <MessageBubble key={i} message={msg} />
+        ))}
 
-          {messages.map((message, i) => (
-            <MessageBubble key={i} message={message} />
-          ))}
+        {isStreaming && activeAgent && streamingContent && (
+          <StreamingBubble content={streamingContent} agentType={activeAgent} />
+        )}
 
-          {isStreaming && streamingContent && activeAgent && (
-            <StreamingBubble content={streamingContent} agentType={activeAgent} />
-          )}
-
-        </div>
+        <div ref={bottomRef} />
       </div>
 
-      {/* Status bar */}
       <AgentStatusBar activeAgent={activeAgent} isStreaming={isStreaming} />
-
-      {/* Input */}
       <InputBar onSend={handleSend} disabled={isStreaming} />
     </div>
   )

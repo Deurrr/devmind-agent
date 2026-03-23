@@ -9,6 +9,7 @@ export interface AgentEvent {
     | 'agent_thinking'
     | 'token'
     | 'agent_done'
+    | 'agent_handoff'
     | 'tool_call'
     | 'tool_result'
     | 'error'
