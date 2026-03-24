@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
+import { ToolCallBubble } from './ToolCallBubble'
 import type { Message } from '@/types'
 
 const AGENT_COLORS: Record<string, string> = {
@@ -80,6 +81,10 @@ function renderContent(content: string) {
 }
 
 export function MessageBubble({ message }: { message: Message }) {
+  if (message.role === 'tool') {
+    return <ToolCallBubble message={message} />
+  }
+
   const isUser = message.role === 'user'
 
   return (

@@ -5,6 +5,7 @@ import { MessageBubble } from './MessageBubble'
 import { StreamingBubble } from './StreamingBubble'
 import { AgentStatusBar } from './AgentStatusBar'
 import { InputBar } from './InputBar'
+import { ExportBar } from './ExportBar'
 import { useChatStore } from '@/store/chatStore'
 import { useAuthStore } from '@/store/authStore'
 import { api } from '@/lib/api'
@@ -25,7 +26,10 @@ export function ChatWindow({ projectId, projectTitle }: Props) {
     isStreaming,
     activeAgent,
     streamingContent,
+    githubRepoUrl,
+    githubToken,
     addMessage,
+    addToolEvent,
     setSessionId,
     setStreaming,
     setActiveAgent,
@@ -60,6 +64,7 @@ export function ChatWindow({ projectId, projectTitle }: Props) {
         projectId,
         message,
         sessionId ?? undefined,
+        githubToken ?? undefined,
         (event: AgentEvent) => {
           if (event.type === 'agent_start' && event.agent) {
             setActiveAgent(event.agent)
@@ -71,6 +76,10 @@ export function ChatWindow({ projectId, projectTitle }: Props) {
             setAgentStatus(event.agent, 'done')
           } else if (event.type === 'agent_handoff' && event.agent) {
             setActiveAgent(event.agent)
+          } else if (event.type === 'tool_call') {
+            addToolEvent(event)
+          } else if (event.type === 'tool_result') {
+            addToolEvent(event)
           } else if (event.type === 'error') {
             toast.error(event.error ?? 'An error occurred')
             setStreaming(false)
@@ -89,6 +98,8 @@ export function ChatWindow({ projectId, projectTitle }: Props) {
     }
   }
 
+  const hasContent = messages.some((m) => m.role === 'assistant')
+
   return (
     <div className="flex flex-col h-full bg-zinc-950">
       {/* Header */}
@@ -96,7 +107,7 @@ export function ChatWindow({ projectId, projectTitle }: Props) {
         <div className="w-2 h-2 rounded-full bg-violet-400 animate-pulse" />
         <h2 className="font-semibold text-zinc-100 text-sm">{projectTitle}</h2>
         <span className="text-xs text-zinc-600 ml-auto">
-          {messages.length} messages
+          {messages.filter((m) => m.role !== 'tool').length} messages
         </span>
       </div>
 
@@ -112,6 +123,15 @@ export function ChatWindow({ projectId, projectTitle }: Props) {
 
         <div ref={bottomRef} />
       </div>
+
+      {/* Export bar — shown once there is assistant content and a session */}
+      {hasContent && sessionId && !isStreaming && (
+        <ExportBar
+          projectId={projectId}
+          sessionId={sessionId}
+          githubRepoUrl={githubRepoUrl}
+        />
+      )}
 
       <AgentStatusBar activeAgent={activeAgent} isStreaming={isStreaming} />
       <InputBar onSend={handleSend} disabled={isStreaming} />

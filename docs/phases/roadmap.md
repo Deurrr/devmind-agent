@@ -53,17 +53,17 @@ User sends a prompt, watches 4+ agents activate in sequence on the graph, and re
 
 ---
 
-## Phase 3 — Real Tool Use
+## Phase 3 — Real Tool Use ✅
 **Goal:** Agents can actually search the web, interact with GitHub, and execute code.
 
 ### Tasks
-- [ ] Tool Service abstraction layer
-- [ ] Brave Search API integration (Research agent)
-- [ ] GitHub API integration via Octokit (read repos, create repos, push files)
-- [ ] Code execution sandbox (Docker exec, isolated environment)
-- [ ] Tool call UI: show tool invocations in the chat timeline
-- [ ] Export to ZIP (archiver)
-- [ ] Push to GitHub flow (OAuth or PAT)
+- [x] Tool Service abstraction layer (`services/tools/` — brave-search, github, code-executor)
+- [x] Brave Search API integration (Researcher agent with Claude tool_use API)
+- [x] GitHub API integration via Octokit (list files, read files, create branch, commit, open PR)
+- [x] Code execution sandbox (Docker exec, isolated container, network-off, memory-limited)
+- [x] Tool call UI: ToolCallBubble component shows invocations inline in chat timeline
+- [x] Export to ZIP (archiver — GET /sessions/:id/export)
+- [x] Push to GitHub flow (PAT — POST /sessions/:id/push-github + GitHubPushModal)
 
 ### Definition of Done
 User can ask "add a search feature to this GitHub repo" and the agent reads the repo, plans, writes code, and opens a PR.
@@ -90,6 +90,13 @@ Project is live at a public URL and works end-to-end for a demo.
 ---
 
 ## Phase Log
+
+### 2026-03-24 — Phase 3 Complete
+- Tool Service layer: Brave Search, GitHub (Octokit), Docker code executor
+- Researcher agent using Anthropic tool_use API (brave_search, github_list_files, github_read_file, execute_code)
+- Smart orchestrator routing: detects GitHub URLs and research keywords
+- Export routes: ZIP download + GitHub PR creation
+- Frontend: ToolCallBubble, ExportBar, GitHubPushModal, githubToken passthrough
 
 ### 2026-03-21 — Phase 0 Complete
 - Initialized project with full documentation

@@ -25,27 +25,27 @@ interface AgentMeta {
 }
 
 const AGENTS: Record<AgentType, AgentMeta> = {
-  planner: { label: 'Planner', icon: '🗺️', color: 'text-blue-400', x: 0, y: 60 },
-  researcher: { label: 'Researcher', icon: '🔍', color: 'text-amber-400', x: 160, y: 0 },
-  architect: { label: 'Architect', icon: '🏗️', color: 'text-emerald-400', x: 160, y: 120 },
-  coder: { label: 'Coder', icon: '💻', color: 'text-violet-400', x: 320, y: 60 },
+  researcher: { label: 'Researcher', icon: '🔍', color: 'text-amber-400', x: 0, y: 60 },
+  planner: { label: 'Planner', icon: '🗺️', color: 'text-blue-400', x: 160, y: 60 },
+  architect: { label: 'Architect', icon: '🏗️', color: 'text-emerald-400', x: 320, y: 0 },
+  coder: { label: 'Coder', icon: '💻', color: 'text-violet-400', x: 320, y: 120 },
   reviewer: { label: 'Reviewer', icon: '🔬', color: 'text-rose-400', x: 480, y: 60 },
   tester: { label: 'Tester', icon: '✅', color: 'text-cyan-400', x: 640, y: 60 },
 }
 
 const STATIC_EDGES: Edge[] = [
+  { id: 're-pl', source: 'researcher', target: 'planner', type: 'smoothstep', style: { stroke: '#52525b' } },
   { id: 'pl-ar', source: 'planner', target: 'architect', type: 'smoothstep', style: { stroke: '#52525b' } },
-  { id: 'pl-re', source: 'planner', target: 'researcher', type: 'smoothstep', style: { stroke: '#52525b' } },
+  { id: 'pl-co', source: 'planner', target: 'coder', type: 'smoothstep', style: { stroke: '#52525b' } },
   { id: 'ar-co', source: 'architect', target: 'coder', type: 'smoothstep', style: { stroke: '#52525b' } },
-  { id: 're-co', source: 'researcher', target: 'coder', type: 'smoothstep', style: { stroke: '#52525b' } },
   { id: 'co-rv', source: 'coder', target: 'reviewer', type: 'smoothstep', style: { stroke: '#52525b' } },
   { id: 'rv-te', source: 'reviewer', target: 'tester', type: 'smoothstep', style: { stroke: '#52525b' } },
 ]
 
 // Edge pairs that become animated when the source agent is active
 const ACTIVE_EDGE_MAP: Record<AgentType, string[]> = {
-  planner: ['pl-ar', 'pl-re'],
-  researcher: ['re-co'],
+  researcher: ['re-pl'],
+  planner: ['pl-ar', 'pl-co'],
   architect: ['ar-co'],
   coder: ['co-rv'],
   reviewer: ['rv-te'],

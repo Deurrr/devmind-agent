@@ -67,6 +67,7 @@ export const api = {
       projectId: string,
       message: string,
       sessionId: string | undefined,
+      githubToken: string | undefined,
       onEvent: (event: import('@/types').AgentEvent) => void,
       onSessionId: (id: string) => void
     ): Promise<void> => {
@@ -78,7 +79,7 @@ export const api = {
             'Content-Type': 'application/json',
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
-          body: JSON.stringify({ message, sessionId }),
+          body: JSON.stringify({ message, sessionId, githubToken }),
         })
 
         if (!res.ok) {
@@ -125,5 +126,23 @@ export const api = {
         resolve()
       })
     },
+  },
+
+  export: {
+    pushToGitHub: (
+      projectId: string,
+      sessionId: string,
+      data: {
+        githubToken: string
+        repoUrl: string
+        branchName?: string
+        prTitle?: string
+        prBody?: string
+      }
+    ) =>
+      request<{ success: boolean; prUrl: string; branch: string; filesCount: number }>(
+        `/api/projects/${projectId}/sessions/${sessionId}/push-github`,
+        { method: 'POST', body: JSON.stringify(data) }
+      ),
   },
 }

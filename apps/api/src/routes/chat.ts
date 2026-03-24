@@ -7,6 +7,7 @@ import type { Message, AgentEvent, AgentType } from '../types/index.js'
 const sendMessageSchema = z.object({
   message: z.string().min(1).max(4000),
   sessionId: z.string().optional(),
+  githubToken: z.string().optional(),
 })
 
 export async function chatRoutes(fastify: FastifyInstance) {
@@ -65,7 +66,7 @@ export async function chatRoutes(fastify: FastifyInstance) {
       let currentContent = ''
 
       try {
-        for await (const event of runOrchestrator(body.data.message, history)) {
+        for await (const event of runOrchestrator(body.data.message, history, body.data.githubToken)) {
           sendEvent(event)
           agentLog.push(event)
 

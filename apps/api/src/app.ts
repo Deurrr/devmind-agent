@@ -6,6 +6,7 @@ import rateLimit from '@fastify/rate-limit'
 import { authRoutes } from './routes/auth.js'
 import { projectRoutes } from './routes/projects.js'
 import { chatRoutes } from './routes/chat.js'
+import { exportRoutes } from './routes/export.js'
 import { redis } from './lib/redis.js'
 import type { JwtPayload } from './types/index.js'
 
@@ -62,6 +63,7 @@ export async function buildApp() {
   await app.register(authRoutes, { prefix: '/api/auth' })
   await app.register(projectRoutes, { prefix: '/api/projects' })
   await app.register(chatRoutes, { prefix: '/api/projects' })
+  await app.register(exportRoutes, { prefix: '/api/projects' })
 
   // Health check
   app.get('/health', async () => ({ status: 'ok', timestamp: new Date().toISOString() }))

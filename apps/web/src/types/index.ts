@@ -16,10 +16,14 @@ export interface Project {
 }
 
 export interface Message {
-  role: 'user' | 'assistant'
+  role: 'user' | 'assistant' | 'tool'
   content: string
   agentType?: AgentType
   timestamp: string
+  // populated when role === 'tool'
+  tool?: string
+  toolInput?: Record<string, unknown>
+  toolResult?: unknown
 }
 
 export type AgentType =
