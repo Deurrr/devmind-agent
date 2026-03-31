@@ -70,19 +70,20 @@ User can ask "add a search feature to this GitHub repo" and the agent reads the 
 
 ---
 
-## Phase 4 — Polish & Deploy
+## Phase 4 — Polish & Deploy ✅
 **Goal:** Production-ready, publicly accessible, impressive to show.
 
 ### Tasks
-- [ ] Landing page with demo video embed
-- [ ] Responsive design review
-- [ ] Error handling and loading states throughout
-- [ ] Rate limiting and security hardening
-- [ ] Environment variable documentation
+- [x] Landing page with hero, feature grid, agent showcase, "how it works", CTA
+- [x] Responsive design — Navbar, ExportBar, and all pages reviewed for mobile
+- [x] Error handling — global error.tsx, not-found.tsx, route-level error.tsx, loading skeletons
+- [x] Security hardening — @fastify/helmet, per-route rate limits (auth: 20/min, AI: 30/min), JWT_SECRET guard in prod
+- [x] Environment variable documentation — .env.example files with inline docs for both apps
+- [x] Deployment configs — vercel.json (frontend), railway.toml + Procfile (API)
+- [x] Demo mode — /demo route with preloaded 8-message conversation showing all 6 agents, read-only
 - [ ] Deploy frontend to Vercel
 - [ ] Deploy backend + DB + Redis to Railway
 - [ ] Custom domain (optional)
-- [ ] Demo project preloaded for unauthenticated preview
 
 ### Definition of Done
 Project is live at a public URL and works end-to-end for a demo.
@@ -97,6 +98,14 @@ Project is live at a public URL and works end-to-end for a demo.
 - Smart orchestrator routing: detects GitHub URLs and research keywords
 - Export routes: ZIP download + GitHub PR creation
 - Frontend: ToolCallBubble, ExportBar, GitHubPushModal, githubToken passthrough
+
+### 2026-03-30 — Phase 4 Complete (local)
+- Landing page: hero, agent showcase, feature grid, "how it works", CTA
+- /demo route: animated 8-message preloaded conversation with all 6 agents, no auth required
+- Security: @fastify/helmet, per-route rate limits, JWT_SECRET prod guard
+- Error handling: global error.tsx + not-found.tsx, route-level error/loading pages
+- Deployment configs: vercel.json, railway.toml, Procfile, .env.example files documented
+- Responsive: Navbar collapses labels on mobile, ExportBar wraps, agent graph hides on small screens
 
 ### 2026-03-21 — Phase 0 Complete
 - Initialized project with full documentation

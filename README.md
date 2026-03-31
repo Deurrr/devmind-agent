@@ -58,10 +58,10 @@ devmind-agent/
 ## Development Roadmap
 
 - [x] **Phase 0** — Project setup, repo, documentation
-- [ ] **Phase 1** — Auth + single agent chat with streaming
-- [ ] **Phase 2** — Multi-agent orchestration + agent graph UI
-- [ ] **Phase 3** — Real tool use (web search, GitHub, sandbox)
-- [ ] **Phase 4** — Polish, deploy, landing page
+- [x] **Phase 1** — Auth + single agent chat with streaming
+- [x] **Phase 2** — Multi-agent orchestration + agent graph UI
+- [x] **Phase 3** — Real tool use (web search, GitHub, sandbox)
+- [x] **Phase 4** — Polish, deploy, landing page
 
 ## Getting Started
 

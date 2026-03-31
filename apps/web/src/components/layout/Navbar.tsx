@@ -26,7 +26,7 @@ export function Navbar() {
         <span className="font-bold text-zinc-100 text-sm">DevMind</span>
       </Link>
 
-      <nav className="flex items-center gap-1">
+      <nav className="hidden sm:flex items-center gap-1">
         <Link
           href="/dashboard"
           className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }), 'text-zinc-400 hover:text-zinc-100 h-8')}
@@ -36,8 +36,8 @@ export function Navbar() {
         </Link>
       </nav>
 
-      <div className="ml-auto flex items-center gap-3">
-        <span className="text-xs text-zinc-500">
+      <div className="ml-auto flex items-center gap-2 sm:gap-3">
+        <span className="text-xs text-zinc-500 hidden sm:block max-w-[120px] truncate">
           {user?.name ?? user?.email}
         </span>
         <Button
@@ -46,8 +46,8 @@ export function Navbar() {
           onClick={handleLogout}
           className="text-zinc-400 hover:text-zinc-100 h-8"
         >
-          <LogOut className="w-4 h-4 mr-1.5" />
-          Sign out
+          <LogOut className="w-4 h-4 sm:mr-1.5" />
+          <span className="hidden sm:inline">Sign out</span>
         </Button>
       </div>
     </header>

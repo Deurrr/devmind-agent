@@ -38,25 +38,27 @@ export function ExportBar({ projectId, sessionId, githubRepoUrl }: Props) {
 
   return (
     <>
-      <div className="flex items-center gap-2 px-4 py-2 border-t border-white/5 bg-zinc-900/50">
-        <span className="text-[10px] text-zinc-600 font-mono mr-1">export</span>
+      <div className="flex flex-wrap items-center gap-2 px-4 py-2 border-t border-white/5 bg-zinc-900/50">
+        <span className="text-[10px] text-zinc-600 font-mono hidden sm:inline">export</span>
 
         <button
           onClick={handleDownloadZip}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs transition-colors border border-white/5"
         >
-          <span>⬇</span> Download ZIP
+          <span>⬇</span>
+          <span className="hidden sm:inline">Download </span>ZIP
         </button>
 
         <button
           onClick={() => setShowModal(true)}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs transition-colors border border-white/5"
         >
-          <span>🐙</span> Push to GitHub
+          <span>🐙</span>
+          <span className="hidden sm:inline">Push to </span>GitHub
         </button>
 
         {githubRepoUrl && (
-          <span className="text-[10px] text-zinc-600 font-mono ml-1 truncate max-w-[200px]">
+          <span className="text-[10px] text-zinc-600 font-mono ml-1 truncate max-w-[120px] sm:max-w-[200px]">
             {githubRepoUrl.replace('https://github.com/', '')}
           </span>
         )}
