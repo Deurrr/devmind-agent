@@ -1,9 +1,6 @@
 {
   "framework": "nextjs",
-  "buildCommand": "cd ../.. && npm run build --workspace=@devmind/web",
+  "buildCommand": "cd ../.. && npm run build -w apps/web",
   "outputDirectory": ".next",
-  "installCommand": "cd ../.. && npm install",
-  "env": {
-    "NEXT_PUBLIC_API_URL": "@devmind-api-url"
-  }
+  "installCommand": "cd ../.. && npm install"
 }
